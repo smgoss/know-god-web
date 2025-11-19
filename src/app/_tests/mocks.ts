@@ -169,6 +169,7 @@ export const mockInput = (
   placeholder: string
 ): Input => {
   return {
+    id: `input-${name}`,
     type: {
       name: 'TEXT',
       ordinal: 0
@@ -269,6 +270,7 @@ export const mockTractCard = (
     visiblePosition: null,
     isLastVisibleCard: null,
     isHidden,
+    background: null,
     backgroundImage: null,
     label: createText(label),
     dismissListeners: [createEventId(`${listeners}-dismiss`)],
@@ -295,7 +297,13 @@ export const mockCyoa = (): CyoaContentPage => {
     parentPage: null,
     parentPageParams: null,
     nextPage: null,
+    isFirstPage: false,
+    isLastPage: false,
+    background: null,
+    backgroundColor: null,
     backgroundImage: null,
+    backgroundImageGravity: null,
+    backgroundImageScaleType: null,
     isHidden: false,
     dismissListeners: null,
     listeners: null,
@@ -322,6 +330,7 @@ export const mockMultiselectOption = (
 ): MultiselectOption => {
   let selectedValue = initialSelectedValue;
   return {
+    id: `option-${Math.random().toString(36).substr(2, 9)}`,
     style: {
       name: 'CARD',
       ordinal: 0
@@ -332,6 +341,8 @@ export const mockMultiselectOption = (
     content: [],
     isSelected: () => selectedValue,
     isSelectedFlow: null,
+    isClickable: () => true,
+    isClickableFlow: () => true,
     watchIsSelected: () => null,
     toggleSelected: () => {
       selectedValue = !selectedValue;
@@ -343,6 +354,7 @@ export const mockMultiselectOption = (
 
 export const mockMultiselect = (): Multiselect => {
   return {
+    id: 'test-multiselect',
     columns: 4,
     options: [mockMultiselectOption(false), mockMultiselectOption(true)],
     ...standardTypeValues()
@@ -423,7 +435,12 @@ export const mockTractPage = (
   dismissListeners: EventId[] = []
 ): org.cru.godtools.shared.tool.parser.model.tract.TractPage => {
   return {
+    isFirstPage: position === 0,
     isLastPage,
+    background: null,
+    backgroundColor: null,
+    backgroundImageGravity: null,
+    backgroundImageScaleType: null,
     header: mockHeader(headerNumber, headerText),
     hero: mockHero(heroHeading),
     callToAction: mockCallToAction(callToActionText),

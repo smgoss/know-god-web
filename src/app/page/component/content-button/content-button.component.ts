@@ -1,10 +1,21 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges
+} from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   Button,
-  EventId
+  EventId,
+  FlowWatcher
 } from 'src/app/services/xml-parser-service/xml-parser.service';
 import { formatEvents } from 'src/app/shared/formatEvents';
+import {
+  VisibilityWatcherComponent,
+  VisibilityWatcherService
+} from 'src/app/shared/visibility-watcher.service';
 import { PageService } from '../../service/page-service.service';
 
 @Component({
@@ -12,7 +23,9 @@ import { PageService } from '../../service/page-service.service';
   templateUrl: './content-button.component.html',
   styleUrls: ['./content-button.component.css']
 })
-export class ContentButtonComponent implements OnChanges {
+export class ContentButtonComponent
+  implements OnChanges, OnDestroy, VisibilityWatcherComponent
+{
   @Input() item: Button;
 
   button: Button;
@@ -26,8 +39,19 @@ export class ContentButtonComponent implements OnChanges {
   buttonBgColor: string;
   dir$: Observable<string>;
 
-  constructor(private pageService: PageService) {
+  // Visibility state management (implements VisibilityWatcherComponent)
+  state: any;
+  isGone: boolean = false;
+  isInvisible: boolean = false;
+  isGoneWatcher?: FlowWatcher;
+  isInvisibleWatcher?: FlowWatcher;
+
+  constructor(
+    private pageService: PageService,
+    public visibilityWatcherService: VisibilityWatcherService
+  ) {
     this.dir$ = this.pageService.pageDir$;
+    this.state = this.pageService.parserState();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -56,6 +80,10 @@ export class ContentButtonComponent implements OnChanges {
     }
   }
 
+  ngOnDestroy(): void {
+    this.visibilityWatcherService.cleanupWatchers(this);
+  }
+
   formAction(): void {
     if (this.events && this.type === 'event') {
       this.pageService.formAction(formatEvents(this.events));
@@ -63,6 +91,9 @@ export class ContentButtonComponent implements OnChanges {
   }
 
   private init(): void {
+    // Set up visibility watchers using the service
+    this.visibilityWatcherService.setupVisibilityWatchers(this.button, this);
+
     // TODO Allow Button styles when Books are ready
     // this.buttonTextColor = this.button.buttonColor || ''
     // this.buttonBgColor = this.button.backgroundColor || ''

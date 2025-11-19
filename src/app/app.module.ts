@@ -9,6 +9,7 @@ import { LottieModule } from 'ngx-lottie';
 import { ToastrModule } from 'ngx-toastr';
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { VisibilityDemoComponent } from './demo/visibility-demo.component';
 import { CalltoactionComponent } from './page/component/calltoaction/calltoaction.component';
 import { CardComponent } from './page/component/card/card.component';
 import { ContentAccordionComponent } from './page/component/content-accordion/content-accordion.component';
@@ -53,6 +54,7 @@ import { SharingModalComponent } from './shared/sharing-modal/sharing-modal.comp
 //============
 
 const appRoutes: Routes = [
+  { path: 'demo', component: VisibilityDemoComponent },
   {
     path: ':langId/:bookId',
     // Redirecting old URL format to the new one
@@ -95,6 +97,7 @@ export function playerFactory() {
   declarations: [
     AppComponent,
     DashboardComponent,
+    VisibilityDemoComponent,
     SharingModalComponent,
     LoaderComponent,
     PageComponent,

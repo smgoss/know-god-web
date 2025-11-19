@@ -1,5 +1,9 @@
-<ng-container *ngIf="ready">
-  <div class="mw568 buttonContent tc" dir="{{ dir$ | async }}">
+<ng-container *ngIf="ready && visibilityWatcherService.shouldShowElement(this)">
+  <div
+    class="mw568 buttonContent tc"
+    dir="{{ dir$ | async }}"
+    [ngStyle]="{ 'visibility': visibilityWatcherService.getVisibilityStyle(this) }"
+  >
     <a
       *ngIf="type === 'url'"
       [href]="url"

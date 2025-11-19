@@ -1,9 +1,20 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges
+} from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  FlowWatcher,
   Text,
   parseTextAddBrTags
 } from 'src/app/services/xml-parser-service/xml-parser.service';
+import {
+  VisibilityWatcherComponent,
+  VisibilityWatcherService
+} from 'src/app/shared/visibility-watcher.service';
 import { PageService } from '../../service/page-service.service';
 
 @Component({
@@ -11,7 +22,9 @@ import { PageService } from '../../service/page-service.service';
   templateUrl: './content-text.component.html',
   styleUrls: ['./content-text.component.css']
 })
-export class ContentTextComponent implements OnChanges {
+export class ContentTextComponent
+  implements OnChanges, OnDestroy, VisibilityWatcherComponent
+{
   @Input() item: Text;
 
   text: Text;
@@ -24,9 +37,20 @@ export class ContentTextComponent implements OnChanges {
   startImgResource: string | null;
   startImgWidth: string | null;
 
-  constructor(private pageService: PageService) {
+  // Visibility state management (implements VisibilityWatcherComponent)
+  state: any;
+  isGone: boolean = false;
+  isInvisible: boolean = false;
+  isGoneWatcher?: FlowWatcher;
+  isInvisibleWatcher?: FlowWatcher;
+
+  constructor(
+    private pageService: PageService,
+    public visibilityWatcherService: VisibilityWatcherService
+  ) {
     this.isFirstPage$ = pageService.isFirstPage$;
     this.dir$ = this.pageService.pageDir$;
+    this.state = this.pageService.parserState();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -49,7 +73,14 @@ export class ContentTextComponent implements OnChanges {
     }
   }
 
+  ngOnDestroy(): void {
+    this.visibilityWatcherService.cleanupWatchers(this);
+  }
+
   private init(): void {
+    // Set up visibility watchers using the service
+    this.visibilityWatcherService.setupVisibilityWatchers(this.text, this);
+
     const styles = {
       'font-weight': this.text.fontWeight ? this.text.fontWeight : '',
       'font-style': this.text.textStyles?.some(
